@@ -115,9 +115,10 @@ We can now selectively remove these optional attributes.
 Remove all of these attributes, keeping only the required attributes.
 
 When importing real infrastructure, consult the provider documentation to learn what each argument does.
-This will help we to determine how to handle any errors or warnings from the plan step.
+This will help us to determine how to handle any errors or warnings from the plan step.
 
 ```shell
+terraform -chdir=cognito-import-command validate -var-file ../env_files/val-dev.tfvars
 terraform -chdir=cognito-import-command plan -var-file ../env_files/val-dev.tfvars
 ```
 
@@ -132,29 +133,3 @@ terraform -chdir=cognito-import-command apply -var-file ../env_files/val-dev.tfv
 
 Now our configuration file, Terraform state, and the container are all in sync, and we can use Terraform to manage the 
 Terraform container as we normally would.
-
-## State & Configuration (preferred way)
-
-Terraform v1.5.0 and later supports import blocks, to import more than one resource at a time, and we can review imports 
-as part of our normal plan and apply workflow.
-
-```shell
-cd learn-terraform-import
-# main.tf file configures the Cognito provider.
-# cognito.tf file will contain the configuration necessary to manage the Cognito user pool we created manually.
-
-# Navigate to cognito.tf and define an empty user pool resource:
-vim cognito.tf
-resource "aws_cognito_user_pool" "val-user-pool" {}
-
-# Find the name of the user pool we want to import: in this case, val
-
-# Run the following terraform import command to attach the existing User pool to the aws_cognito_user_pool.val-user-pool resource we just created.
-# Terraform import requires this Terraform resource ID and the full User pool ID.
-# The command docker inspect -f {{.ID}} hashicorp-learn returns the full SHA256 container ID:
-terraform import docker_container.web $(docker inspect -f {{.ID}} hashicorp-learn)
-```
-
-
-# Once the import is done, plan|apply as follows
-terraform -chdir=cognito-import-command validate -var-file env_files/val-dev.tfvars
